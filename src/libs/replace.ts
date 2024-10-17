@@ -2,6 +2,10 @@ export const replaceSize = (content: string, size: number) => {
   return content.replace(/#size#/g, String(size));
 };
 
+export const replaceDisplay =(content: string, display: string)=>{
+  return content.replace(/#display#/g, String(display));
+}
+
 export const replaceCases = (content: string, cases: string) => {
   return content.replace(/#cases#/g, cases);
 };

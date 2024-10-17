@@ -9,7 +9,7 @@ import { Config } from './getConfig';
 import { getTemplate } from './getTemplate';
 import {
   replaceCases,
-  replaceComponentName,
+  replaceComponentName, replaceDisplay,
   replaceExports,
   replaceImports,
   replaceNames,
@@ -42,14 +42,25 @@ export const generateComponent = (data: XmlData, config: Config) => {
   data.svg.symbol.forEach((item) => {
     let singleFile: string;
     const iconId = item.$.id;
-    const iconIdAfterTrim = config.trim_icon_prefix
+    let iconIdAfterTrim = config.trim_icon_prefix
       ? iconId.replace(
         new RegExp(`^${config.trim_icon_prefix}(.+?)$`),
         (_, value) => value.replace(/^[-_.=+#@!~*]+(.+?)$/, '$1')
       )
       : iconId;
-    const componentName = upperFirst(camelCase(iconId));
+    //fix https://github.com/iconfont-cli/react-iconfont-cli/issues/15
+    // resolve the componentName equal "font", "font" ==> "fontx"
+    let hasReplace=false
+    if(iconIdAfterTrim.trim() === 'font'){
+       iconIdAfterTrim = iconIdAfterTrim+'x'
+       hasReplace =true
+    }
+    const componentName = upperFirst(camelCase(hasReplace ? iconId+'x':iconId));
 
+    if(hasReplace){
+      console.log(`${colors.yellow("The name of icon can't be `font`,it will cause some error when building component!\n"
+        +`Now, it will be replace by "fontx", the name of generated component is: ${componentName}`)}`)
+    }
     names.push(iconIdAfterTrim);
 
     cases += `${whitespace(4)}case '${iconIdAfterTrim}':\n`;
@@ -59,6 +70,7 @@ export const generateComponent = (data: XmlData, config: Config) => {
 
     singleFile = getTemplate('SingleIcon' + jsxExtension);
     singleFile = replaceSize(singleFile, config.default_icon_size);
+    singleFile = replaceDisplay(singleFile,config.display);
     singleFile = replaceComponentName(singleFile, componentName);
     singleFile = replaceSingleIconContent(singleFile, generateCase(item, 4));
     singleFile = replaceSizeUnit(singleFile, config.unit);
@@ -72,7 +84,8 @@ export const generateComponent = (data: XmlData, config: Config) => {
       fs.writeFileSync(path.join(saveDir, componentName + '.d.ts'), typeDefinitionFile);
     }
 
-    console.log(`${colors.green('√')} Generated icon "${colors.yellow(iconId)}"`);
+    const endExtra = hasReplace? `, which origin is:"${colors.yellow(iconId)}"`:''
+    console.log(`${colors.green('√')} Generated icon "${colors.yellow(hasReplace ? iconId+'x':iconId)}"${endExtra}`);
   });
 
   let iconFile =  getTemplate('Icon' + jsxExtension);

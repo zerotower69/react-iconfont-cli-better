@@ -1,6 +1,10 @@
 ## react-iconfont-cli
 用纯JS把iconfont.cn的图标转换成React组件，不依赖字体，支持多色彩
 
+# fork说明
+由于[原来](https://github.com/iconfont-cli/react-iconfont-cli)的作者使用的语法还有一些暂未解决的bug，本人使用上碰到了诸多的问题。
+具体[请参考](https://github.com/iconfont-cli/react-iconfont-cli/issues)。
+
 ![](https://github.com/fwh1990/react-iconfont-cli/blob/master/images/icons.png?raw=true)
 
 ## 特性
@@ -148,6 +152,16 @@ export const App = () => {
 ```bash
 # 修改 symbol_url 配置后执行：
 npx iconfont-h5
+```
+
+# 开发
+在原来的基础上，增加了一些scripts脚本，更方便本地打包测试
+```bash
+npm run only-build
+```
+如果你碰到了执行权限问题，请使用`chmod`命令。
+```bash
+chmod +x xxx.sh
 ```
 
 # 扩展
